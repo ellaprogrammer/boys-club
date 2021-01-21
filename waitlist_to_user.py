@@ -27,16 +27,21 @@ class User(BaseModel):
   class Config:
     title = 'Main'
 
+def take_off_waitlist(dict_obj_waitlist, key):
+  if key in dict_obj_waitlist:
+    del dict_obj_waitlist[key]
+
 # Run this POST to manually move users off the waitlist
 def post(user: User, user_store = storage_context("users"), waitlist_store = storage_context("waitlist")):
   # phone_number = "+1" + str(user.phone) 
+  take_off_waitlist(waitlist_store, user.phone)
   user_store[user.phone] = user.dict()
   # TODO remove from waitlist
   client = Client(variables.ACCOUNT_SID, variables.TWILIO_AUTH_TOKEN)
   message = client.messages \
     .create(
         body="Congrats, you are off the waitlist! \nWelcome to the BOYS.CLUB, where you get the latest on all things that you’d rather us cover for you. No more boys club talk that keeps you out of the conversation. \n\n 🥊 Here a few things you can expect from us: \n 🏀 The latest buzz on all things pop culture for featured games, so you know what people are laughing about in your Tuesday morning meetings. \n 🏈 Headlines, close games, and players to know about (yes this will include photos of Jimmy G 🔥). \n ⚽️ Important upcoming dates, so you’re never stuck asking if anyone has weekend plans on the Friday before the Super Bowl (ouch, we’ve all been there). \n ⚾️ Interactive engagement on your side (coming soon!), send us a 👍 or 👎 for a quick pulse check on how our updates are sitting with you, send us ‘MORE’ and if we’ve got it, we’ll send follow up articles or tweets for more info. \nReply STOP to unsubscribe at anytime.",
-        from_='+14153580188',
+        from_='+14156872582',
         # status_callback='https://9lfthysp.brev.dev/api/signup_welcome',
         to=user.phone
       )
