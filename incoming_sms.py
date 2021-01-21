@@ -24,17 +24,23 @@ def add_value_to_responses_dict(dict_obj, key, value):
         # so, add key-value pair and add them to Users dict
         dict_obj[key] = str(datetime.datetime.now()) + value
 
-def new_user(dict_obj, key):
+def existing_user(dict_obj, key):
   if key in dict_obj:
-    return False
-  else:
     return True
+  else:
+    return False
 
 def new_to_waitlist(dict_obj, key):
   if key in dict_obj:
     return False
   else:
     return True
+
+def on_waitlist(dict_obj, key):
+  if key in dict_obj:
+    return True
+  else:
+    return False
 
 def unsubcribe_user(dict_obj_waitlist, dict_obj_users, key):
   if key in dict_obj_waitlist:
@@ -83,9 +89,9 @@ def get(ToCountry: str, ToState: str, SmsMessageSid: str, NumMedia: str, ToCity:
   client = Client(variables.ACCOUNT_SID, variables.TWILIO_AUTH_TOKEN)
   # Are they on the waitlist still?
   is_not_on_waitlist = new_to_waitlist(waitlist_store, From)
+  is_on_waitlist = on_waitlist(waitlist_store, From)
   # Have we seen this user before in our Users table?
-  is_new_user = new_user(user_store, From)
-  send_waitlist_text = is_not_on_waitlist
+  is_existing_user = existing_user(user_store, From)
 
   # TODO: check if Body == "STOP" and delete them and send a confirmation
   if (Body == 'STOP'):
@@ -101,7 +107,15 @@ def get(ToCountry: str, ToState: str, SmsMessageSid: str, NumMedia: str, ToCity:
   
   waitlist_with_num = f"Welcome to the boys.club waitlist! 🥳\n\nWe’re currently letting users in on a rolling basis and you are currently #{random.randint(29,41)} in line. \n\n🤔 Want to move up in line? \n - Reply to this text with your name \n - Let us know why you signed up \n - Tag us on social @boysclubtext \n\n 🥊 We’ll get back to you soon & let you know when we’re ready to have you join the boysclub. \nReply STOP to unsubscribe at anytime."
   # Was it a signup?
-  if send_waitlist_text:
+  if is_existing_user:
+    message = client.messages \
+      .create(
+          body="Your message has been received! Thanks for the feedback/info. As we are working on getting more responsive, if you want to get in touch with us, feel free to reach out to ella@boys.club or @boysclubtext on Twitter.",
+          from_='+14156872582',
+          # status_callback='https://9lfthysp.brev.dev/api/sms',
+          to=From
+        )
+  elif is_not_on_waitlist:
     # Sign up new user, for now with NoName.
     waitlist_store[From] = "NoName"
     # TODO: Send a real waitlist number
@@ -112,8 +126,7 @@ def get(ToCountry: str, ToState: str, SmsMessageSid: str, NumMedia: str, ToCity:
           # status_callback='https://9lfthysp.brev.dev/api/signup_welcome',
           to=From
         )
-  # Or feedback?
-  else:
+  elif is_on_waitlist:
     message = client.messages \
       .create(
           body="Your message has been received! Thanks for the feedback/info. As we are working on getting more responsive, if you want to get in touch with us, feel free to reach out to ella@boys.club or @boysclubtext on Twitter.",
@@ -121,6 +134,7 @@ def get(ToCountry: str, ToState: str, SmsMessageSid: str, NumMedia: str, ToCity:
           # status_callback='https://9lfthysp.brev.dev/api/sms',
           to=From
         )
+  
 
   return "status: success."
 

@@ -8,13 +8,13 @@ from global_storage import storage_context
 from fastapi.responses import JSONResponse
 from twilio.rest import Client
 
-def get(response):
-  if response == "👍": # do we need all the shades?
-    return { f"positive feedback" }
-  elif response == "👎":
-    return { f"negative feedback" }
-  else:
-    return { f"response: {response}!" }
+# def get(response):
+#   if response == "👍": # do we need all the shades?
+#     return { f"positive feedback" }
+#   elif response == "👎":
+#     return { f"negative feedback" }
+#   else:
+#     return { f"response: {response}!" }
 
 # type definition of incoming JSON body
 class Sport(BaseModel):
