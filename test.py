@@ -39,7 +39,7 @@ def post(user: User, user_store = storage_context("users")):
   message = client.messages \
     .create(
         body="welcome to the boysclub",
-        from_='+14153580188',
+        from_='+',
         to=user.phone
     )
 
